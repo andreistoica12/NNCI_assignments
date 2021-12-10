@@ -1,5 +1,6 @@
-n_D = 50;
+n_D = 50; % change this to higher values for smoother 
 alphas = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0];
+%alphas = [0.70, 0.80, 0.90, 1.0, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.0, 2.10, 2.20, 2.30, 2.40, 2.5, 2.60, 2.70, 2.80, 2.90, 3.0];
 
 epochs = 100; % number of epochs
 Ns = [20, 40, 60, 80, 100]; % array of dimension of feature vectors - use 20 and 40 at least
