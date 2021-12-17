@@ -1,11 +1,14 @@
 n_D = 50; % change this to higher values for smoother 
-alphas = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0];
+% bonus alphas
+alphas = [1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2.0, 2.05, 2.1, 2.15, 2.2, 2.25, 2.3, 2.35, 2.4, 2.45, 2.5];
+% normal alphas
+%alphas = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0];
 %alphas = [0.70, 0.80, 0.90, 1.0, 1.10, 1.20, 1.30, 1.40, 1.50, 1.60, 1.70, 1.80, 1.90, 2.0, 2.10, 2.20, 2.30, 2.40, 2.5, 2.60, 2.70, 2.80, 2.90, 3.0];
-
 epochs = 100; % number of epochs
 Ns = [20, 40, 60, 80, 100]; % array of dimension of feature vectors - use 20 and 40 at least
 N_success = zeros(length(Ns),length(alphas));
-for N = 1:length(Ns)
+for n_value = 1:length(Ns)
+    N = Ns(n_value);
     success_rates = zeros(length(alphas), 1);
     for x = 1:length(alphas)
         alpha = alphas(x);
