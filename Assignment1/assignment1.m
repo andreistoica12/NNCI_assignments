@@ -53,7 +53,7 @@ xlabel("$\alpha = P/N$",'Interpreter', 'latex');
 ylabel("$Q_{l.s.}$", 'Interpreter', 'latex');
 hold on;
 for p = 2:length(Ns)
-    plot(alphas, N_success(p,:));
+    plot(alphas, N_success(p,:), '-*');
 end
 hold off;
 lengendCell = cellstr(num2str(Ns', 'N=%-d'));
