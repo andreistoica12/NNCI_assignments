@@ -32,6 +32,8 @@ for p_value = 1:length(P_vals)
             w_star_norm = norm(w_star);
             w_star = w_star ./ w_star_norm .* sqrt(double(N));
 
+%             disp(norm(w_star)^2);
+
             % we initialize the target values dependent on w* and y with 0s
             S = zeros(P, 1);
 
@@ -51,13 +53,9 @@ for p_value = 1:length(P_vals)
             k = zeros(P, 1);
             E = zeros(P, 1);
             
-            for epoch = 0:t_max - 1
+            for epoch = 1:t_max
                 for example = 1:P
-                    if epoch == 0
-                        current_w = zeros(N, 1);
-                    else
-                        current_w = w(:, epoch);
-                    end
+                    current_w = w(:, epoch);
                     E(example) = (y(example, :) * current_w) * S(example);
                     if norm(current_w) ~= 0 % ensure no division by 0
                         k(example) = E(example) / norm(current_w);
@@ -68,23 +66,24 @@ for p_value = 1:length(P_vals)
                     end
                 end
                 % we determine the example with lowest stability
-                [min_example, min_index] = min(k); % find(k == min(k)) 
-                w(:, epoch + 1) = current_w + (y(example,:)' * S(example)) ./ double(N) ;  % update the weights
+                [min_example, min_index] = min(k); % find(k == min(k))
                 
+                w(:, epoch) = current_w + ((y(min_index,:)' * S(min_index)) ./ double(N)) ;  % update the weights
+
+
                 % TODO: determine a good stopping criterion
-                if epoch > P
+                threshold = t_max / 4;
+                if epoch > threshold
                     % TODO: solve this argument (it seems to be always 1)
-                    argument = dot(w(:, epoch - P), w(:, epoch)) / ...
-                        (norm(w(:, epoch - P)) * norm(w(:, epoch)));
+                    argument = dot(w(:, epoch - threshold), w(:, epoch)) / norm(w(:, epoch - threshold)) / norm(w(:, epoch));
 %                     fprintf("argument = %d", argument);
                     angular_change = acos(argument) / pi ;
-                    fprintf("angular change = %d \n", angular_change);
+%                     fprintf("angular change = %d \n", angular_change);
 
-
-                    if angular_change < 0.1
-                        t_max_final(1, x) = epoch ;
-                        break;
-                    end
+%                     if angular_change < 0.3
+%                         t_max_final(1, x) = epoch ;
+%                         break;
+%                     end
                 end
             end
             gen_error = gen_error + acos(dot(w(:, t_max), w_star) / ...
