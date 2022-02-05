@@ -1,13 +1,24 @@
+% Legend:
+% n_D = number of runs
+% alphas = ratios of P/N (array)
+% P_vals = numbers of data points (array)
+% N_gen_errors = generalization errors for each data point and alpha (length(P_vals) x length(alphas))
+% n_max = factor for determining a reasonable t_max
+% t_max = n_max * P
+% N = P / alpha
+% y = P randomly-generated N-dimensional training samples (P x N)
+
+
 n_D = 50; % number of runs
 
 % alphas = [0.25, 0.5, 1, 3.0, 5.0];
 alphas = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0]; % alphas as in assignment
 % alphas = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0];
 
-P_vals = [5, 20, 35];
+P_vals = [5, 20, 50];
 % P_vals = [5, 20, 40, 60, 80, 100]; % change to P values ?
 N_gen_errors = zeros(length(P_vals),length(alphas)); % should be for number of Ps
-n_max = 100;
+n_max = 125;
 
 for p_value = 1:length(P_vals)
     P = P_vals(p_value);
@@ -24,7 +35,7 @@ for p_value = 1:length(P_vals)
             % we create P randomly-generated N-dimensional vectors
             y = randn(P, N);
 
-            % we define the weight vector as a column vector
+            % we define the teacher weight vector as a column vector
             w_star = randn(N, 1);
             % we normalise the teacher weight vector w* to 1, then multiply each element with
             % the preferred value sqrt(N) so that the squared norm is equal
@@ -34,7 +45,8 @@ for p_value = 1:length(P_vals)
 
 %             disp(norm(w_star)^2);
 
-            % we initialize the target values dependent on w* and y with 0s
+            % we initialize the target values dependent on w* and y with
+            % zeros
             S = zeros(P, 1);
 
             % we determine the target values with the help of the teacher
@@ -71,42 +83,49 @@ for p_value = 1:length(P_vals)
                 w(:, epoch) = current_w + ((y(min_index,:)' * S(min_index)) ./ double(N)) ;  % update the weights
 
 
-                % TODO: determine a good stopping criterion
-                threshold = t_max / 4;
-                if epoch > threshold
-                    % TODO: solve this argument (it seems to be always 1)
-                    argument = dot(w(:, epoch - threshold), w(:, epoch)) / norm(w(:, epoch - threshold)) / norm(w(:, epoch));
-%                     fprintf("argument = %d", argument);
-                    angular_change = acos(argument) / pi ;
-%                     fprintf("angular change = %d \n", angular_change);
-
-%                     if angular_change < 0.3
-%                         t_max_final(1, x) = epoch ;
-%                         break;
-%                     end
-                end
+%                 % TODO: determine a good stopping criterion
+%                 threshold = int64(t_max / 4);
+%                 if epoch > threshold + 1
+%                     % TODO: solve this argument (it seems to be always
+% %                     fprintf("epoch = %d, epoch - threshold = %d \n", epoch, epoch-threshold);
+% %                     fprintf("threshold = %d \n", threshold);
+%                     argument = dot(w(:, epoch-threshold), w(:, epoch)) / norm(w(:, epoch-threshold)) / norm(w(:, epoch));
+% %                     fprintf("argument = %d \n", argument);
+%                     angular_change = acos(argument) / pi ;
+% %                     fprintf("angular change = %d \n", angular_change);
+% 
+% %                     if angular_change < 0.3
+% %                         t_max_final(1, x) = epoch ;
+% %                         break;
+% %                     end
+%                 end
             end
             gen_error = gen_error + acos(dot(w(:, t_max), w_star) / ...
                 (norm(w(:, t_max)) * norm(w_star))) / pi ;
         end
+        % the vector of all generalization errors for each alpha
+        % it is computed as the average of generalization errors over the
+        % number of n_D randomized data sets per value of P
         gen_errors(1, x) = gen_error / n_D ; 
     end
+    % the matrix of all generalization errors for each alpha, for each
+    % chosen number of P input vectors
     N_gen_errors(p_value,:) = gen_errors ;
 end
 
 % TODO: plot
 % plotting the results
 figure;
-plot(alphas, mean(N_gen_errors), '-*');
+plot(alphas, N_gen_errors(1, :), '-*');
 title('$\epsilon_{g}$ as a function of $\alpha$', 'Interpreter', 'latex');
 xlabel("$\alpha = P/N$",'Interpreter', 'latex');
 ylabel("$\epsilon_{g}$", 'Interpreter', 'latex');
-% hold on;
-% for p = 2:size(N_gen_errors, 1)
-%     plot(alphas, N_gen_errors(p,:), '-*');
-% end
-% hold off;
-legendCell = cellstr(num2str(mean(N_gen_errors)', 'N=%-d'));
+hold on;
+for p = 2:length(P_vals)
+    plot(alphas, N_gen_errors(p,:), '-*');
+end
+hold off;
+legendCell = cellstr(num2str(P_vals', 'P=%-d'));
 legend(legendCell);
 
 % TODO: test 
